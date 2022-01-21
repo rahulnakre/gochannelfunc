@@ -1,46 +1,20 @@
 package gochannelfunc
 
 import (
-	"errors"
 	"fmt"
-	"reflect"
 )
 
-// type HandlerChannel struct {
-// 	c chan string
-// 	f func(string) string
-// }
 
-type HandlerChannel struct {
-	c chan interface{}
-	f func(interface{}) interface{}
+type HandlerChannel[K any] struct {
+	C chan K
 }
 
-// func (hc *HandlerChannel) New(c chan interface{}, f func(interface{}) interface{}) HandlerChannel {
+// func (hc HandlerChannel[K]) New(c chan K) (HandlerChannel, error) {
+// 	return HandlerChannel[K]{ c: c }, nil
+// }
 
-func (hc *HandlerChannel) New(c interface{}, f interface{}) (HandlerChannel, error) {
-
-	// types.Identical(c.)
-
-	isChannel := reflect.ValueOf(c).Kind() == reflect.Chan
-	if !isChannel {
-		msg := fmt.Sprintf("Expected c to be of type: chan T\nGot: %s\n", reflect.TypeOf(c))
-		return HandlerChannel{}, errors.New(msg)
-	}
-
-	channelDataType := reflect.ValueOf(c).Type().Elem()
-	// fDataType := reflect.StructField
-
-	chanType := reflect.TypeOf(c)
-	funcType := reflect.TypeOf(f)
-
-	fmt.Printf("isChannel: %v\n", isChannel)
-	fmt.Printf("chanType: %v\n", chanType)
-	fmt.Printf("inner data of chan Type: %v\n", channelDataType)
-	fmt.Printf("funcType: %v\n", funcType)
-	// fmt.Printf("fDataType: %v\n", fDataType)
-
-	return HandlerChannel{}, nil
+func (hc HandlerChannel[K]) New() HandlerChannel[K] {
+	return HandlerChannel[K]{ C: make(chan K) }
 }
 
 /*
@@ -65,39 +39,69 @@ func (hc *HandlerChannel) New(c interface{}, f interface{}) (HandlerChannel, err
 		Challenges:
 			- how do i get the channel type, function input + output to be the same type?
 				- types lib?
+
+
+		usage
+
+		isEven := func(x int) bool {
+			if x % 2 == 0 {
+				return true;
+			}
+			return false;
+		}
+
+		timesTwo := func(x int) int {
+			return x * 2;
+		}
+
+		divisibleByfour := func(b bool) bool {
+			if x % 4 == 0 {
+				return true;
+			}
+
+			return false;
+		} 
+
+		hc := HandlerChannel.New(int)
+
+		hc.AddFunc(isEven)
+		hc.AddFunc(timesTwo, divisibleBy4) // doesnt perform this step if second func result is falsey
+
+		hc.c <- 2
+		
+		fmt.Printf("result: %d\n", <-hc.c) // should print 4
 */
 
 func Work() string {
 	fmt.Println("working...")
 
-	// hc := HandlerChannel{
-	// c: make(chan string),
+	c := make(chan int)
+	hc := HandlerChannel[int]{}
+
+
+	// isEven := func(x int) bool {
+	// 	if x % 2 == 0 {
+	// 		return true;
+	// 	}
+	// 	return false;
 	// }
 
-	// fmt.Printf("%v\n", hc)
-	// c := make(chan string)
+	// timesTwo := func(x int) int {
+	// 	return x * 2;
+	// }
 
-	hc := HandlerChannel{}
-	c := make(chan int)
-	f := func(i int) int {
-		return 1
-	}
+	// divisibleByfour := func(x int) bool {
+	// 	if x % 4 == 0 {
+	// 		return true;
+	// 	}
 
-	hc.New(c, f)
+	// 	return false;
+	// } 
 
-	hel(make(chan string))
-
-	// reflect.FuncOf([]reflect.Type{reflect.Int}, []reflect.Type{reflect.Bool}, false)
 
 	return "done working"
 }
 
-func hel(i interface{}) bool {
-
-	fmt.Println(i)
-
-	return true
-}
 
 type EvenIter struct {
 	max       int
