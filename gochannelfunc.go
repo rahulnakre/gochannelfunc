@@ -1,20 +1,26 @@
 package gochannelfunc
 
-import (
-	"fmt"
-)
-
 
 type HandlerChannel[K any] struct {
-	C chan K
+	c chan K
+	funcs []func(K) K
 }
 
-// func (hc HandlerChannel[K]) New(c chan K) (HandlerChannel, error) {
-// 	return HandlerChannel[K]{ c: c }, nil
-// }
 
 func (hc HandlerChannel[K]) New() HandlerChannel[K] {
-	return HandlerChannel[K]{ C: make(chan K) }
+	return HandlerChannel[K]{ c: make(chan K) }
+}
+
+func (hc *HandlerChannel[K]) AddFunc(f func(K) K) error {
+	hc.funcs = append(hc.funcs, f)
+
+	return nil
+}
+
+func (hc *HandlerChannel[K]) Send(x K) error {
+	hc.c <- x
+
+	return nil
 }
 
 /*
@@ -72,53 +78,56 @@ func (hc HandlerChannel[K]) New() HandlerChannel[K] {
 		fmt.Printf("result: %d\n", <-hc.c) // should print 4
 */
 
-func Work() string {
-	fmt.Println("working...")
-
-	c := make(chan int)
-	hc := HandlerChannel[int]{}
+// func Work() string {
+// 	fmt.Println("working...")
 
 
-	// isEven := func(x int) bool {
-	// 	if x % 2 == 0 {
-	// 		return true;
-	// 	}
-	// 	return false;
-	// }
 
-	// timesTwo := func(x int) int {
-	// 	return x * 2;
-	// }
+// 	isEven := func(x int) bool {
+// 		if x % 2 == 0 {
+// 			return true;
+// 		}
+// 		return false;
+// 	}
 
-	// divisibleByfour := func(x int) bool {
-	// 	if x % 4 == 0 {
-	// 		return true;
-	// 	}
+// 	timesTwo := func(x int) int {
+// 		return x * 2;
+// 	}
 
-	// 	return false;
-	// } 
+// 	divisibleByfour := func(x int) bool {
+// 		if x % 4 == 0 {
+// 			return true;
+// 		}
+
+// 		return false;
+// 	} 
 
 
-	return "done working"
-}
+// 	hc := HandlerChannel[int]{}
+// 	hc.AddFunc(timesTwo)
+
+
+
+// 	return "done working"
+// }
 
 
 type EvenIter struct {
-	max       int
-	currValue int
+	Max       int
+	CurrValue int
 }
 
 func (e *EvenIter) Value() int {
-	return e.currValue
+	return e.CurrValue
 }
 
 func (e *EvenIter) Next() bool {
-	newValue := e.currValue + 2
+	newValue := e.CurrValue + 2
 
-	if newValue > e.max {
+	if newValue > e.Max {
 		return false
 	}
 
-	e.currValue = newValue
+	e.CurrValue = newValue
 	return true
 }

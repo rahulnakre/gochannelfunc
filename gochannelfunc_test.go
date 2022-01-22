@@ -1,22 +1,22 @@
-package gochannelfunc
+package gochannelfunc_test
 
 import (
 	"fmt"
-	"strings"
 	"testing"
+	"github.com/gochannelfunc"
 )
 
-func Test(t *testing.T) {
-	want := "done working"
-	got := Work()
+// func Test(t *testing.T) {
+// 	want := "done working"
+// 	got := Work()
 
-	if strings.Compare(got, want) != 0 {
-		t.Errorf("Want: %s . Got: %s", want, got)
-	}
-}
+// 	if strings.Compare(got, want) != 0 {
+// 		t.Errorf("Want: %s . Got: %s", want, got)
+// 	}
+// }
 
 func TestEvenIter(t *testing.T) {
-	iter := EvenIter{max: 30, currValue: 0}
+	iter := gochannelfunc.EvenIter{Max: 30, CurrValue: 0}
 	i := 2
 
 	for iter.Next() {
@@ -33,4 +33,20 @@ func assertEqual(t *testing.T, a interface{}, b interface{}, message string) {
 		message = fmt.Sprintf("%v != %v", a, b)
 	}
 	t.Fatal(message)
+}
+
+func TestBasicHc(t *testing.T) {
+	timesTwo := func(x int) int {
+		return x * 2;
+	}
+
+
+	hc := gochannelfunc.HandlerChannel[int]{}
+	hc.New()
+
+	hc.AddFunc(timesTwo)
+
+
+	
+
 }
