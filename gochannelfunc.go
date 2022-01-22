@@ -1,13 +1,20 @@
 package gochannelfunc
 
 type HandlerChannel[K any] struct {
-	C chan K
+	c chan K
 	funcs []func(K) K
 }
 
-
 func (hc *HandlerChannel[K]) New() {
-	hc.C = make(chan K)
+	hc.c = make(chan K)
+}
+
+func (hc *HandlerChannel[K]) In() chan<- K {
+	return hc.c
+}
+
+func (hc *HandlerChannel[K]) Out() <-chan K {
+	return hc.c
 }
 
 func (hc *HandlerChannel[K]) AddFunc(f func(K) K) error {
@@ -16,30 +23,17 @@ func (hc *HandlerChannel[K]) AddFunc(f func(K) K) error {
 	return nil
 }
 
-// func (hc *HandlerChannel[K]) Send(x K) error {
-// 	hc.c <- x
+func (hc *HandlerChannel[K]) Send(x K) {
+	for _, f := range hc.funcs {
+		x = f(x)			
+	}
 
-// 	return nil
-// }
-
-// func (hc *HandlerChannel[K]) Receive() (K, error) {
-// 	// return <-hc.c, nil
-// 	fmt.Println("hello")	
-// 	x := <-hc.c
-
-// 	fmt.Println("hello2")	
-// 	return x, nil
-
-// }
-
-func (hc *HandlerChannel[K]) In() chan<- K {
-	return hc.C
+	hc.c <- x	
 }
 
-func (hc *HandlerChannel[K]) Out() <-chan K {
-	return hc.C
+func (hc *HandlerChannel[K]) Receive() K {
+	return <-hc.c			
 }
-
 
 /*
 	Reqs:
