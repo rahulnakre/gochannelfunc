@@ -44,14 +44,19 @@ func TestBasicHc(t *testing.T) {
 	hc := gochannelfunc.HandlerChannel[int]{}
 	hc.New()
 
+	// c := make(chan int)
+
 	go func() {
-		hc.Send(2)
+		hc.In() <- 2
+		// hc.C <- 2
+		// c <- 2
 	}()
-	
 
-	x, _ := hc.Receive()
-
-	// assertEqual(t, x, 2, "Expected to get 2")
+	fmt.Println(hc.C)
+	x := <-hc.Out()
+	// x := <-hc.C
+	// x := 2
+	assertEqual(t, x, 2, "Expected to get 2")
 
 	// hc.AddFunc(timesTwo)
 
