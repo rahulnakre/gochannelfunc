@@ -9,6 +9,10 @@ func (hc *HandlerChannel[K]) New() {
 	hc.c = make(chan K)
 }
 
+func (hc *HandlerChannel[K]) NewBuffered(bufsize int) {
+	hc.c = make(chan K, bufsize)
+}
+
 func (hc *HandlerChannel[K]) In() chan<- K {
 	return hc.c
 }
