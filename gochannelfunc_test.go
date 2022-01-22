@@ -36,15 +36,24 @@ func assertEqual(t *testing.T, a interface{}, b interface{}, message string) {
 }
 
 func TestBasicHc(t *testing.T) {
-	timesTwo := func(x int) int {
-		return x * 2;
-	}
+	// timesTwo := func(x int) int {
+	// 	return x * 2;
+	// }
 
 
 	hc := gochannelfunc.HandlerChannel[int]{}
 	hc.New()
 
-	hc.AddFunc(timesTwo)
+	go func() {
+		hc.Send(2)
+	}()
+	
+
+	x, _ := hc.Receive()
+
+	// assertEqual(t, x, 2, "Expected to get 2")
+
+	// hc.AddFunc(timesTwo)
 
 
 	

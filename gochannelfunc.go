@@ -23,6 +23,10 @@ func (hc *HandlerChannel[K]) Send(x K) error {
 	return nil
 }
 
+func (hc *HandlerChannel[K]) Receive() (K, error) {
+	return <-hc.c, nil
+}
+
 /*
 	Reqs:
 		Inputs:
