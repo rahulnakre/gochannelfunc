@@ -1,6 +1,8 @@
 package apichan
 
 import (
+	"bytes"
+	"crypto/sha1"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -52,7 +54,7 @@ type ApiChan struct {
 	C        chan string
 	url      *url.URL
 	data     string
-	lasthash string
+	prevhash []byte
 }
 
 func (ac *ApiChan) New() {
@@ -79,6 +81,7 @@ func (ac *ApiChan) Poll(stop <-chan interface{}, rate ...time.Duration) {
 		r = rate[0]
 	}
 	limiter := time.NewTicker(r)
+	h := sha1.New()
 
 	for {
 		select {
@@ -89,15 +92,25 @@ func (ac *ApiChan) Poll(stop <-chan interface{}, rate ...time.Duration) {
 			<-limiter.C
 
 			response, err := http.Get(ac.url.String())
+
 			if err != nil {
 				fmt.Println(err.Error())
 				ac.C <- err.Error()
 			}
 
 			s, err := ioutil.ReadAll(response.Body)
+			h.Write([]byte(s))
+			bs := h.Sum(nil)
+
+			fmt.Printf("prevhash: %x\nbs: %x\n", ac.prevhash, bs)
+
 			if err != nil {
 				fmt.Println(err)
 				ac.C <- err.Error()
+			} else if bytes.Equal(ac.prevhash, bs) {
+				ac.prevhash = bs
+				ac.C <- "same value as prev result"
+				continue
 			} else {
 				ac.C <- string(s)
 			}
