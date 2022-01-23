@@ -1,7 +1,6 @@
 package apichan_test
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -16,29 +15,17 @@ func TestBasicHc(t *testing.T) {
 	stop := make(chan interface{})
 	timer := time.NewTimer(2 * time.Second)
 
-	go ac.Poll(stop)
+	go ac.Poll(stop, 300*time.Millisecond)
 
 	for {
 		select {
 		case <-timer.C:
-			fmt.Println("sending stop signal")
-			// fmt.Println(len(ac.C))
-			// stop <- 1
+			t.Log("sending stop signal")
 			close(stop)
-			// break
 			return
 		case msg := <-ac.Out():
-			fmt.Printf("msg:%s\n", msg)
+			t.Logf("msg:%s\n", msg)
 		default:
 		}
 	}
-
-	msg := <-ac.C
-
-	fmt.Println(msg)
-
-	// for range <-ac.Out() {
-	// fmt.Println("sf")
-	// }
-
 }

@@ -73,13 +73,16 @@ func (ac *ApiChan) AddUrl(_url string) error {
 	return nil
 }
 
-func (ac *ApiChan) Poll(stop <-chan interface{}) {
-	limiter := time.NewTicker(200 * time.Millisecond)
+func (ac *ApiChan) Poll(stop <-chan interface{}, rate ...time.Duration) {
+	r := 200 * time.Microsecond
+	if len(rate) > 0 {
+		r = rate[0]
+	}
+	limiter := time.NewTicker(r)
 
 	for {
 		select {
 		case <-stop:
-			fmt.Println("[ApiChan.Poll] stopping...")
 			limiter.Stop()
 			return
 		default:
