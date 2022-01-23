@@ -1,5 +1,9 @@
 package gochannelfunc
 
+/*
+	TODO: If i could make the input K and the output be T,
+	it could be used for something like passing in strings and getting out JSONs
+*/
 type HandlerChannel[K any] struct {
 	c chan K
 	funcs []func(K) K
